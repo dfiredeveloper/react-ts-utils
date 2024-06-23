@@ -2,6 +2,8 @@
 
 A TypeScript library for common type safety utilities in React applications.
 
+This is a comprehensive TypeScript library designed to streamline type safety in React projects. It provides essential utilities like requireProp, requireArrayProp, and requireReactNodeProp to enforce robust type checks, ensuring more reliable and maintainable React applications.
+
 ## Installation
 
 You can install `react-type-utils` via npm:
