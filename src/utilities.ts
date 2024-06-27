@@ -1,27 +1,24 @@
-import { ReactNode } from 'react';
+import React from 'react';
 
-// Function to ensure a prop is required
-export function requireProp<T>(prop: T): T {
-  if (prop === undefined || prop === null) {
+export function requireProp(value: any): any {
+  if (value === undefined || value === null) {
     throw new Error('Required prop is missing!');
   }
-  return prop;
+  return value;
 }
 
-// Function to ensure a prop is an array
-export function requireArrayProp<T>(prop: T[]): T[] {
-  if (!Array.isArray(prop)) {
+export function requireArrayProp(value: any): any[] {
+  if (!Array.isArray(value)) {
     throw new Error('Required prop must be an array!');
   }
-  return prop;
+  return value;
 }
 
-// Function to ensure a prop is a ReactNode
-export function requireReactNodeProp(prop: ReactNode): ReactNode {
-  if (typeof prop !== 'number' && typeof prop !== 'string' && typeof prop !== 'boolean' && typeof prop !== 'object') {
+export function requireReactNodeProp(value: React.ReactNode): React.ReactNode {
+  if (!React.isValidElement(value)) {
     throw new Error('Required prop must be a ReactNode!');
   }
-  return prop;
+  return value;
 }
 
 // New function
