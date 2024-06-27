@@ -1,6 +1,6 @@
 {
   "name": "react-type-utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A TypeScript library for common type safety utilities in React applications.",
   "main": "dist/index.js",
   "scripts": {
