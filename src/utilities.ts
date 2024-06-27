@@ -23,3 +23,8 @@ export function requireReactNodeProp(prop: ReactNode): ReactNode {
   }
   return prop;
 }
+
+// New function
+export function isString(value: any): value is string {
+  return typeof value === 'string';
+}
