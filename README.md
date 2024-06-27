@@ -23,6 +23,11 @@ import { requireProp, requireArrayProp, requireReactNodeProp } from 'react-type-
 const myRequiredProp = requireProp('Hello');
 const myArrayProp = requireArrayProp([1, 2, 3]);
 const myReactNodeProp = requireReactNodeProp(<div>Hello</div>);
+
+// Using isString function
+if (isString(myRequiredProp)) {
+  console.log('myRequiredProp is a string:', myRequiredProp);
+}
 ```
 
 ## License
