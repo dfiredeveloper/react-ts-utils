@@ -27,3 +27,19 @@ test('requireReactNodeProp should return input if it is a valid ReactNode', () =
 test('requireReactNodeProp should throw error if input is not a valid ReactNode', () => {
   expect(() => requireReactNodeProp(123)).toThrowError('Required prop must be a ReactNode!');
 });
+
+// New tests for isString function
+
+describe('isString function', () => {
+  it('should return true for a string', () => {
+    expect(isString('Hello')).toBe(true);
+  });
+
+  it('should return false for non-string values', () => {
+    expect(isString(123)).toBe(false);
+    expect(isString(null)).toBe(false);
+    expect(isString(undefined)).toBe(false);
+    expect(isString({})).toBe(false);
+    expect(isString([])).toBe(false);
+  });
+});
