@@ -16,18 +16,14 @@ npm install react-type-utils
 ## Usage
 
 ```bash
-import { requireProp, requireArrayProp, requireReactNodeProp } from 'react-type-utils';
-
+import { requireProp, requireArrayProp, requireReactNodeProp, isString, isValidEmail } from 'react-type-utils';
 
 // Example usage
 const myRequiredProp = requireProp('Hello');
 const myArrayProp = requireArrayProp([1, 2, 3]);
 const myReactNodeProp = requireReactNodeProp(<div>Hello</div>);
-
-// Using isString function
-if (isString(myRequiredProp)) {
-  console.log('myRequiredProp is a string:', myRequiredProp);
-}
+const myString = isString('Hello');
+const myValidEmail = isValidEmail('test@example.com');
 ```
 
 ## License
