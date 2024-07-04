@@ -21,7 +21,12 @@ export function requireReactNodeProp(value: React.ReactNode): React.ReactNode {
   return value;
 }
 
-// New function
+
 export function isString(value: any): value is string {
   return typeof value === 'string';
+}
+
+export function isValidEmail(value: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(value);
 }
