@@ -48,3 +48,16 @@ describe('isString function', () => {
     expect(isString([])).toBe(false);
   });
 });
+
+describe('isValidEmail function', () => {
+  it('should return true for a valid email address', () => {
+    expect(isValidEmail('test@example.com')).toBe(true);
+  });
+
+  it('should return false for an invalid email address', () => {
+    expect(isValidEmail('invalid-email')).toBe(false);
+    expect(isValidEmail('invalid@')).toBe(false);
+    expect(isValidEmail('@example.com')).toBe(false);
+    expect(isValidEmail('test@.com')).toBe(false);
+  });
+});
