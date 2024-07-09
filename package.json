@@ -1,6 +1,6 @@
 {
   "name": "react-type-utils",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A TypeScript library for common type safety utilities in React applications.",
   "main": "dist/index.js",
   "scripts": {
@@ -8,8 +8,8 @@
     "build": "tsc"
   },
   "repository": {
-  "type": "git",
-  "url": "https://github.com/dfiredeveloper/react-ts-utils"
+    "type": "git",
+    "url": "https://github.com/dfiredeveloper/react-ts-utils"
   },
   "keywords": [
     "typescript",
