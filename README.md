@@ -16,14 +16,26 @@ npm install react-type-utils
 ## Usage
 
 ```bash
-import { requireProp, requireArrayProp, requireReactNodeProp, isString, isValidEmail } from 'react-type-utils';
+import { requireProp, requireArrayProp, requireReactNodeProp, isValidEmail, validateField, validateForm, formValidators } from 'react-type-utils';
 
-// Example usage
+// Example usage for type safety utilities
 const myRequiredProp = requireProp('Hello');
 const myArrayProp = requireArrayProp([1, 2, 3]);
 const myReactNodeProp = requireReactNodeProp(<div>Hello</div>);
-const myString = isString('Hello');
-const myValidEmail = isValidEmail('test@example.com');
+
+// Example usage for form validation utilities
+const formData = {
+  name: 'John',
+  email: 'test@example.com',
+};
+
+const formRules = {
+  name: [formValidators.required],
+  email: [formValidators.required, formValidators.email],
+};
+
+const result = validateForm(formData, formRules);
+console.log(result);
 ```
 
 ## License
