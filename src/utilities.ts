@@ -1,4 +1,5 @@
 import React from 'react';
+export * from './formValidator';
 
 export function requireProp(value: any): any {
   if (value === undefined || value === null) {
