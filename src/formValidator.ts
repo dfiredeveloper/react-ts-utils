@@ -3,10 +3,12 @@ export interface ValidationResult {
   errors: string[];
 }
 
-const formValidators = {
-  required: (value: string): ValidationResult => ({
-    valid: !!value,
-    errors: !!value ? [] : ['This field is required.']
+export type Validator = (value: any) => ValidationResult;
+
+export const formValidators = {
+  required: (value: any): ValidationResult => ({
+    valid: value !== undefined && value !== null && value !== '',
+    errors: value !== undefined && value !== null && value !== '' ? [] : ['This field is required.']
   }),
   minLength: (length: number) => (value: string): ValidationResult => ({
     valid: value.length >= length,
@@ -23,37 +25,29 @@ const formValidators = {
   custom: (validator: (value: any) => boolean, errorMessage: string) => (value: any): ValidationResult => ({
     valid: validator(value),
     errors: validator(value) ? [] : [errorMessage]
-  }),
-  email: (value: string): ValidationResult => ({
-    valid: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
-    errors: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? [] : ['Invalid email format.']
   })
 };
 
-export const validateField = (value: any, validators: ((value: any) => ValidationResult)[]): ValidationResult => {
-  const errors: string[] = [];
-  let valid = true;
+export const validateForm = <T>(formData: T, formRules: { [K in keyof T]?: Validator[] }): { [K in keyof T]: ValidationResult } => {
+  const validationResults = {} as { [K in keyof T]: ValidationResult };
 
-  validators.forEach(validator => {
-    const result = validator(value);
-    if (!result.valid) {
-      valid = false;
-      errors.push(...result.errors);
+  for (const key in formRules) {
+    if (formRules.hasOwnProperty(key)) {
+      const validators = formRules[key] || [];
+      const value = formData[key];
+      const result = validators.reduce(
+        (acc, validator) => {
+          const validation = validator(value);
+          return {
+            valid: acc.valid && validation.valid,
+            errors: [...acc.errors, ...validation.errors]
+          };
+        },
+        { valid: true, errors: [] } as ValidationResult
+      );
+      validationResults[key] = result;
     }
-  });
-
-  return { valid, errors };
-};
-
-export const validateForm = (formData: { [key: string]: any }, formRules: { [key: string]: ((value: any) => ValidationResult)[] }): { [key: string]: ValidationResult } => {
-  const results: { [key: string]: ValidationResult } = {};
-
-  for (const field in formRules) {
-    results[field] = validateField(formData[field], formRules[field]);
   }
 
-  return results;
+  return validationResults;
 };
-
-export { formValidators };
-export * from './formValidator';

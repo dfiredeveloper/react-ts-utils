@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { validateForm, formValidators, ValidationResult, Validator } from './formValidator';
+import { validateForm, ValidationResult, Validator } from './formValidator';
 
 interface FormState<T> {
   values: T;
@@ -18,12 +18,15 @@ export function useForm<T>(initialValues: T, validators: FormValidators<T>) {
 
   const handleChange = (name: keyof T) => (value: any) => {
     const newValues = { ...formState.values, [name]: value };
-    const validationResults = validateForm(newValues, validators);
+    const validationResults = validateForm(newValues, validators as { [key: string]: Validator[] });
 
     setFormState({
       values: newValues,
-      errors: validationResults.errors,
-      isValid: validationResults.isValid,
+      errors: Object.keys(validationResults).reduce((acc, key) => {
+        acc[key as keyof T] = validationResults[key as keyof T].errors;
+        return acc;
+      }, {} as Partial<Record<keyof T, string[]>>),
+      isValid: Object.values(validationResults).every(result => result.valid),
     });
   };
 
