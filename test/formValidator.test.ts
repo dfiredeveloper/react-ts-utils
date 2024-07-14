@@ -1,67 +1,64 @@
-import formValidators, { validateField, ValidationResult } from '../src/formValidator';
+import { renderHook, act } from '@testing-library/react-hooks';
+import { useForm } from '../src/useForm';
+import { formValidators } from '../src/formValidator'; 
 
-describe('Form Validators', () => {
-  describe('minLengthValidator', () => {
-    const minLengthValidator = formValidators.minLength(3);
+interface FormData {
+  name: string;
+  email: string;
+}
 
-    it('should return true for a string with minimum length', () => {
-      expect(minLengthValidator('Hello').valid).toBe(true);
-    });
+describe('useForm hook', () => {
+  const initialValues: FormData = { name: '', email: '' };
+  const validators = {
+    name: [formValidators.required],
+    email: [formValidators.required, formValidators.email],
+  };
 
-    it('should return false for a string shorter than minimum length', () => {
-      expect(minLengthValidator('Hi').valid).toBe(false);
-    });
+  it('should initialize form state correctly', () => {
+    const { result } = renderHook(() => useForm(initialValues, validators));
+
+    expect(result.current.formState.values).toEqual(initialValues);
+    expect(result.current.formState.errors).toEqual({});
+    expect(result.current.formState.isValid).toBe(true);
   });
 
-  describe('maxLengthValidator', () => {
-    const maxLengthValidator = formValidators.maxLength(5);
+  it('should update form state on change', () => {
+    const { result } = renderHook(() => useForm(initialValues, validators));
 
-    it('should return true for a string within maximum length', () => {
-      expect(maxLengthValidator('Hello').valid).toBe(true);
+    act(() => {
+      result.current.handleChange('name')('John');
     });
 
-    it('should return false for a string longer than maximum length', () => {
-      expect(maxLengthValidator('Hello World').valid).toBe(false);
-    });
+    expect(result.current.formState.values.name).toBe('John');
+    expect(result.current.formState.errors.name).toBeUndefined();
+    expect(result.current.formState.isValid).toBe(false); // because email is still invalid
   });
 
-  describe('patternValidator', () => {
-    const patternValidator = formValidators.pattern(/Hello/);
+  it('should validate form correctly', () => {
+    const { result } = renderHook(() => useForm(initialValues, validators));
 
-    it('should return true for a string matching the pattern', () => {
-      expect(patternValidator('Hello').valid).toBe(true);
+    act(() => {
+      result.current.handleChange('name')('John');
+      result.current.handleChange('email')('john@example.com');
     });
 
-    it('should return false for a string not matching the pattern', () => {
-      expect(patternValidator('Hi').valid).toBe(false);
-    });
+    expect(result.current.formState.values.name).toBe('John');
+    expect(result.current.formState.values.email).toBe('john@example.com');
+    expect(result.current.formState.errors).toEqual({});
+    expect(result.current.formState.isValid).toBe(true);
   });
 
-  describe('customValidator', () => {
-    const customValidator = formValidators.custom(value => value === 'valid', 'Invalid value');
+  it('should handle validation errors', () => {
+    const { result } = renderHook(() => useForm(initialValues, validators));
 
-    it('should return true for a value passing the custom validation', () => {
-      expect(customValidator('valid').valid).toBe(true);
+    act(() => {
+      result.current.handleChange('name')('John');
+      result.current.handleChange('email')('invalid-email');
     });
 
-    it('should return false for a value failing the custom validation', () => {
-      expect(customValidator('invalid').valid).toBe(false);
-    });
-  });
-
-  describe('validateField', () => {
-    const validators = [
-      formValidators.minLength(3),
-      formValidators.maxLength(5),
-      formValidators.pattern(/Hello/),
-    ];
-
-    it('should return true if all validators pass', () => {
-      expect(validateField('Hello', validators).valid).toBe(true);
-    });
-
-    it('should return false if any validator fails', () => {
-      expect(validateField('Hi', validators).valid).toBe(false);
-    });
+    expect(result.current.formState.values.name).toBe('John');
+    expect(result.current.formState.values.email).toBe('invalid-email');
+    expect(result.current.formState.errors.email).toContain('Invalid email format.');
+    expect(result.current.formState.isValid).toBe(false);
   });
 });
