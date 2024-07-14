@@ -18,7 +18,7 @@ export function useForm<T>(initialValues: T, validators: FormValidators<T>) {
 
   const handleChange = (name: keyof T) => (value: any) => {
     const newValues = { ...formState.values, [name]: value };
-    const validationResults = validateForm(newValues, validators as { [key: string]: Validator[] });
+    const validationResults = validateForm<T>(newValues, validators);
 
     setFormState({
       values: newValues,
@@ -26,7 +26,7 @@ export function useForm<T>(initialValues: T, validators: FormValidators<T>) {
         acc[key as keyof T] = validationResults[key as keyof T].errors;
         return acc;
       }, {} as Partial<Record<keyof T, string[]>>),
-      isValid: Object.values(validationResults).every(result => result.valid),
+      isValid: Object.values(validationResults).every((result: any) => result.valid), // Adjusted type here
     });
   };
 
