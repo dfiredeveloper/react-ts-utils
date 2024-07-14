@@ -3,12 +3,10 @@ module.exports = {
   testEnvironment: 'jsdom',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.[jt]sx?$': 'babel-jest', // This line ensures both .js and .jsx/.ts and .tsx files are transformed
   },
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1'
-  },
-  testRegex: '/test/.*\\.(test|spec)\\.(ts|tsx)$', // Adjust as per your test file naming conventions
+  testRegex: '/test/.*\\.(test|spec)?\\.(ts|tsx|js|jsx)$',
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.json',

@@ -1,16 +1,52 @@
 import { useState } from 'react';
 
-const useForm = (initialValues: any, validators: any) => {
-  const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState({});
+type Validators<T> = {
+  [K in keyof T]?: (value: T[K]) => string | undefined;
+};
 
-  const handleInputChange = (fieldName: string, value: any) => {
-    setValues({ ...values, [fieldName]: value });
+type Errors<T> = {
+  [K in keyof T]?: string;
+};
+
+export const useForm = <T extends Record<string, any>>(
+  initialValues: T,
+  validators: Validators<T>
+) => {
+  const [values, setValues] = useState<T>(initialValues);
+  const [errors, setErrors] = useState<Errors<T>>({});
+
+  const handleInputChange = (fieldName: keyof T, value: T[keyof T]) => {
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+    }));
+
+    if (validators[fieldName]) {
+      const error = validators[fieldName]?.(value);
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [fieldName]: error,
+      }));
+    }
   };
 
   const validateForm = () => {
-    // Validation logic here
-    return true; // Placeholder logic
+    let isValid = true;
+    const newErrors: Errors<T> = {};
+
+    Object.keys(values).forEach((key) => {
+      const fieldName = key as keyof T;
+      if (validators[fieldName]) {
+        const error = validators[fieldName]?.(values[fieldName]);
+        if (error) {
+          newErrors[fieldName] = error;
+          isValid = false;
+        }
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
   };
 
   return {
@@ -20,5 +56,3 @@ const useForm = (initialValues: any, validators: any) => {
     validateForm,
   };
 };
-
-export default useForm;
