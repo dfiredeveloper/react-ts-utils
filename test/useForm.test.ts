@@ -1,8 +1,8 @@
 import { act } from 'react-dom/test-utils'; // Import act from react-dom/test-utils
 import { renderHook } from '@testing-library/react-hooks';
-import useForm from '../src/useForm'; // Adjust the path based on your project structure
+import useForm from '../src/useForm'; 
 
-// Define your own Validator type
+
 type Validator<T> = (value: T) => string | undefined;
 
 describe('useForm hook', () => {
@@ -42,11 +42,11 @@ describe('useForm hook', () => {
     act(() => {
       result = renderHook(() => useForm(initialValues, validators));
     });
-    expect(result.current.validateForm()).toBe(false); // Initially, form should not be valid
+    expect(result.current.validateForm()).toBe(false); 
     act(() => {
       result.current.handleInputChange('username', 'testUser');
     });
-    expect(result.current.validateForm()).toBe(true); // After valid input, form should be valid
+    expect(result.current.validateForm()).toBe(true);
   });
 
   it('should handle validation errors', () => {
@@ -55,7 +55,7 @@ describe('useForm hook', () => {
       result = renderHook(() => useForm(initialValues, validators));
     });
     expect(result.current.errors.username).toBeUndefined();
-    expect(result.current.validateForm()).toBe(false); // Initially, form should not be valid
+    expect(result.current.validateForm()).toBe(false); 
     expect(result.current.errors.username).toEqual(['Username is required']);
   });
 
