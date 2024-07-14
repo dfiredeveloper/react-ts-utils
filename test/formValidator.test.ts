@@ -1,4 +1,4 @@
-import { validateForm, ValidationResult, Validator } from './formValidator';
+import { validateForm, ValidationResult, Validator } from '../src/formValidator';
 
 describe('validateForm function', () => {
   const initialValues = {

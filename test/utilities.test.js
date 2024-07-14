@@ -1,5 +1,6 @@
-import React from 'react'; // Add this import
-import { requireProp, requireArrayProp, requireReactNodeProp, isString, isValidEmail } from '../src/utilities';
+const React = require('react'); // Add this import
+const { requireProp, requireArrayProp, requireReactNodeProp, isString, isValidEmail } = require('../src/utilities');
+
 
 
 describe('requireProp function', () => {
