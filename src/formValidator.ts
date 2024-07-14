@@ -1,14 +1,36 @@
 export interface ValidationResult {
   valid: boolean;
-  errors?: string[]; // Ensure errors property is defined here
+  errors?: string[]; 
 }
 
 export type Validator = (value: any) => ValidationResult;
 
-// Example validators
+
 export const validators = {
   name: [(value: any) => ({ valid: value.length > 0, errors: ['Name is required'] })],
   email: [(value: any) => ({ valid: /\S+@\S+\.\S+/.test(value), errors: ['Invalid email address'] })],
+};
+
+const formValidators = {
+  minLength: (length: number): Validator => (value: string): ValidationResult => ({
+    valid: value.length >= length,
+    errors: value.length >= length ? [] : [`Minimum length is ${length}.`],
+  }),
+
+  maxLength: (length: number): Validator => (value: string): ValidationResult => ({
+    valid: value.length <= length,
+    errors: value.length <= length ? [] : [`Maximum length is ${length}.`],
+  }),
+
+  pattern: (regex: RegExp): Validator => (value: string): ValidationResult => ({
+    valid: regex.test(value),
+    errors: regex.test(value) ? [] : ['Invalid format.'],
+  }),
+
+  custom: (validator: (value: any) => boolean, errorMessage: string): Validator => (value: any): ValidationResult => ({
+    valid: validator(value),
+    errors: validator(value) ? [] : [errorMessage],
+  }),
 };
 
 export const validateForm = (
