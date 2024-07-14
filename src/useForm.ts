@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { validateForm, ValidationResult, Validator } from './formValidator';
+import { validateForm, Validator, ValidationResult } from './formValidator';
 
 interface FormState<T> {
   values: T;
@@ -7,31 +7,38 @@ interface FormState<T> {
   isValid: boolean;
 }
 
-type FormValidators<T> = Partial<Record<keyof T, Validator[]>>;
+const useForm = <T>(initialValues: T, validators: Partial<Record<keyof T, Validator[]>>) => {
+  const [values, setValues] = useState<T>(initialValues);
+  const [errors, setErrors] = useState<Partial<Record<keyof T, string[]>>>({});
+  const [isValid, setIsValid] = useState<boolean>(true);
 
-export function useForm<T>(initialValues: T, validators: FormValidators<T>) {
-  const [formState, setFormState] = useState<FormState<T>>({
-    values: initialValues,
-    errors: {},
-    isValid: true,
-  });
+  const handleChange = (fieldName: keyof T) => (value: any) => {
+    setValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+    }));
+  };
 
-  const handleChange = (name: keyof T) => (value: any) => {
-    const newValues = { ...formState.values, [name]: value };
-    const validationResults = validateForm<T>(newValues, validators);
+  const validate = () => {
+    const validationResults = validateForm(values, validators as { [key: string]: Validator[] });
+    const newErrors: Partial<Record<keyof T, string[]>> = {};
 
-    setFormState({
-      values: newValues,
-      errors: Object.keys(validationResults).reduce((acc, key) => {
-        acc[key as keyof T] = validationResults[key as keyof T].errors;
-        return acc;
-      }, {} as Partial<Record<keyof T, string[]>>),
-      isValid: Object.values(validationResults).every((result: any) => result.valid), // Adjusted type here
+    Object.keys(validationResults).forEach(fieldName => {
+      const result = validationResults[fieldName];
+      if (!result.valid) {
+        newErrors[fieldName] = result.errors || [];
+      }
     });
+
+    setErrors(newErrors);
+    setIsValid(Object.values(validationResults).every(result => result.valid));
   };
 
   return {
-    formState,
+    formState: { values, errors, isValid },
     handleChange,
+    validate,
   };
-}
+};
+
+export default useForm;
