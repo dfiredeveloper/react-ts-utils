@@ -1,43 +1,46 @@
 import { useState } from 'react';
-import { validateForm, Validator, ValidationResult } from './formValidator';
 
-interface FormState<T> {
-  values: T;
-  errors: Partial<Record<keyof T, string[]>>;
-  isValid: boolean;
-}
+type Validator<T> = (value: T) => string | undefined;
 
-const useForm = <T>(initialValues: T, validators: Partial<Record<keyof T, Validator[]>>) => {
+const useForm = <T extends { [key: string]: any }>(
+  initialValues: T,
+  validators: Partial<Record<keyof T, Validator<T>[]>> = {}
+) => {
   const [values, setValues] = useState<T>(initialValues);
-  const [errors, setErrors] = useState<Partial<Record<keyof T, string[]>>>({});
-  const [isValid, setIsValid] = useState<boolean>(true);
+  const [errors, setErrors] = useState<Record<keyof T, string[]>>(undefined as any);
 
-  const handleChange = (fieldName: keyof T) => (value: any) => {
-    setValues((prevValues) => ({
+  const handleInputChange = (fieldName: keyof T, value: T[keyof T]) => {
+    setValues(prevValues => ({
       ...prevValues,
       [fieldName]: value,
     }));
   };
 
-  const validate = () => {
-    const validationResults = validateForm(values, validators as { [key: string]: Validator[] });
-    const newErrors: Partial<Record<keyof T, string[]>> = {};
+  const validateForm = () => {
+    const newErrors: Record<keyof T, string[]> = undefined as any;
 
-    Object.keys(validationResults).forEach(fieldName => {
-      const result = validationResults[fieldName];
-      if (!result.valid) {
-        newErrors[fieldName] = result.errors || [];
+    Object.keys(validators).forEach(field => {
+      const fieldName = field as keyof T;
+      const fieldValidators = validators[fieldName];
+
+      if (fieldValidators) {
+        const fieldErrors = fieldValidators.map(validator => validator(values[fieldName])).filter(Boolean) as string[];
+        if (fieldErrors.length > 0) {
+          newErrors[fieldName] = fieldErrors;
+        }
       }
     });
 
     setErrors(newErrors);
-    setIsValid(Object.values(validationResults).every(result => result.valid));
+    return Object.keys(newErrors).length === 0;
   };
 
   return {
-    formState: { values, errors, isValid },
-    handleChange,
-    validate,
+    values,
+    errors,
+    setValues,
+    handleInputChange,
+    validateForm,
   };
 };
 

@@ -1,50 +1,64 @@
-import useForm from '../src/useForm'; 
-import { validateForm, ValidationResult, Validator } from '../src/formValidator';
+import { act } from 'react-dom/test-utils'; // Import act from react-dom/test-utils
+import { renderHook } from '@testing-library/react-hooks';
+import useForm from '../src/useForm'; // Adjust the path based on your project structure
+
+// Define your own Validator type
+type Validator<T> = (value: T) => string | undefined;
 
 describe('useForm hook', () => {
   const initialValues = {
-    name: '',
-    email: '',
+    username: '',
+    password: '',
   };
 
-  const validators = {
-    name: [(value: any) => ({ valid: value.length > 0, errors: ['Name is required'] })],
-    email: [(value: any) => ({ valid: /\S+@\S+\.\S+/.test(value), errors: ['Invalid email address'] })],
+  const validators: Partial<Record<"username" | "password", Validator<{ username: string; password: string; }>[]>> = {
+    username: [(value: { username: string; password: string; }) => (value.username ? undefined : 'Username is required')],
+    password: [(value: { username: string; password: string; }) => (value.password ? undefined : 'Password is required')],
   };
 
   it('should initialize form state correctly', () => {
-    const { result } = renderHook(() => useForm(initialValues, validators));
-    expect(result.current.formState.values).toEqual(initialValues);
-    expect(result.current.formState.errors).toEqual({});
+    let result: any;
+    act(() => {
+      result = renderHook(() => useForm(initialValues, validators));
+    });
+    expect(result.current.values).toEqual(initialValues);
+    expect(result.current.errors).toEqual({});
   });
 
   it('should update form state on change', () => {
-    const { result } = renderHook(() => useForm(initialValues, validators));
+    let result: any;
     act(() => {
-      result.current.handleChange('name')('John');
+      result = renderHook(() => useForm(initialValues, validators));
     });
-    expect(result.current.formState.values.name).toBe('John');
+    const newValue = 'test';
+    act(() => {
+      result.current.handleInputChange('username', newValue);
+    });
+    expect(result.current.values.username).toEqual(newValue);
   });
 
   it('should validate form correctly', () => {
-    const { result } = renderHook(() => useForm(initialValues, validators));
+    let result: any;
     act(() => {
-      result.current.handleChange('name')('John');
-      result.current.handleChange('email')('john@example.com');
-      result.current.validate();
+      result = renderHook(() => useForm(initialValues, validators));
     });
-    expect(result.current.formState.errors.name).toBeUndefined();
-    expect(result.current.formState.errors.email).toBeUndefined();
-    expect(result.current.formState.isValid).toBe(true);
+    expect(result.current.validateForm()).toBe(false); // Initially, form should not be valid
+    act(() => {
+      result.current.handleInputChange('username', 'testUser');
+    });
+    expect(result.current.validateForm()).toBe(true); // After valid input, form should be valid
   });
 
   it('should handle validation errors', () => {
-    const { result } = renderHook(() => useForm(initialValues, validators));
+    let result: any;
     act(() => {
-      result.current.handleChange('name')('');
-      result.current.validate();
+      result = renderHook(() => useForm(initialValues, validators));
     });
-    expect(result.current.formState.errors.name).toEqual(['Name is required']);
-    expect(result.current.formState.isValid).toBe(false);
+    expect(result.current.errors.username).toBeUndefined();
+    expect(result.current.validateForm()).toBe(false); // Initially, form should not be valid
+    expect(result.current.errors.username).toEqual(['Username is required']);
   });
+
+  // Add more test cases as needed
+
 });
